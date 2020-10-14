@@ -1,5 +1,6 @@
 .DS_Store
 metadata/
+src/
 
 # Force CLI specific things
 force
