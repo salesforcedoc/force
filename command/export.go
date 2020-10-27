@@ -24,7 +24,7 @@ Export Options
   -w, -warnings  # Display warnings about metadata that cannot be retrieved
   -x, -exclude   # Exclude given metadata type
   -i, -include   # Include given metadata type
-  -p, -package   # Include managed packages
+  -p, -package   # Include managed package metadata
 
 Examples:
 
@@ -84,11 +84,17 @@ func runExport(cmd *Command, args []string) {
 	}
 	query := make(ForceMetadataQuery, 0)
 	customObject := "CustomObject"
+	standardValueSet := "StandardValueSet"
 
 	sort.Strings(excludeMetadataNames)
 	sort.Strings(includeMetadataNames)
 
-	if !isExcluded(customObject) || isIncluded(customObject) {
+	exportAll := true
+	if len(includeMetadataNames) > 0 {
+		exportAll = false
+	}
+
+	if (!isExcluded(customObject) && exportAll) || isIncluded(customObject) {
 		stdObjects := make([]string, 1, len(sobjects)+1)
 		stdObjects[0] = "*"
 		for _, sobject := range sobjects {
@@ -108,6 +114,77 @@ func runExport(cmd *Command, args []string) {
 		stdObjects = append(stdObjects, "Activity")
 
 		query = append(query, ForceMetadataQueryElement{Name: []string{customObject}, Members: stdObjects})
+	}
+
+	standardValueSetNames := []string{
+		"AccountContactMultiRoles",
+		"AccountContactRole",
+		"AccountOwnership",
+		"AccountRating",
+		"AccountType",
+		"AssetStatus",
+		"CampaignMemberStatus",
+		"CampaignStatus",
+		"CampaignType",
+		"CareItemStatus2",
+		"CaseContactRole",
+		"CaseOrigin",
+		"CasePriority",
+		"CaseReason",
+		"CaseStatus",
+		"CaseType",
+		"ContactRole",
+		"ContractContactRole",
+		"ContractStatus",
+		"EntitlementType",
+		"EventSubject",
+		"EventType",
+		"FiscalYearPeriodName",
+		"FiscalYearPeriodPrefix",
+		"FiscalYearQuarterName",
+		"FiscalYearQuarterPrefix",
+		"IdeaCategory1",
+		"IdeaMultiCategory",
+		"IdeaStatus",
+		"IdeaThemeStatus",
+		"Industry",
+		"LeadSource",
+		"LeadStatus",
+		"OpportunityCompetitor",
+		"OpportunityStage",
+		"OpportunityType",
+		"OrderStatus",
+		"OrderType",
+		"PartnerRole",
+		"Product2Family",
+		"QuestionOrigin1",
+		"QuickTextCategory",
+		"QuickTextChannel",
+		"QuoteStatus",
+		"RoleInTerritory2",
+		"ResourceAbsenceType",
+		"SalesTeamRole",
+		"Salutation",
+		"ServiceAppointmentStatus",
+		"ServiceContractApprovalStatus",
+		"ServTerrMemRoleType",
+		"SocialPostClassification",
+		"SocialPostEngagementLevel",
+		"SocialPostReviewedStatus",
+		"SolutionStatus",
+		"TaskPriority",
+		"TaskStatus",
+		"TaskSubject",
+		"TaskType",
+		"WorkOrderLineItemStatus",
+		"WorkOrderPriority",
+		"WorkOrderStatus",
+		"WorkTypeDefApptType",
+		"WorkTypeGroupAddInfo",
+	}
+
+	if (!isExcluded(standardValueSet) && exportAll) || isIncluded(standardValueSet) {
+		query = append(query, ForceMetadataQueryElement{Name: []string{standardValueSet}, Members: standardValueSetNames})
 	}
 
 	metadataNames := []string{
@@ -235,7 +312,7 @@ func runExport(cmd *Command, args []string) {
 		"EmailFolder",
 		"EmailIntegrationSettings",
 		"EmailServicesFunction",
-		"EmailTemplate",
+		//"EmailTemplate",
 		"EmailTemplateSettings",
 		"EmbeddedServiceBranding",
 		"EmbeddedServiceConfig",
@@ -409,7 +486,7 @@ func runExport(cmd *Command, args []string) {
 		"SocialProfileSettings",
 		"SourceTrackingSettings",
 		"StandardValue",
-		"StandardValueSet",
+		// "StandardValueSet",
 		"StandardValueSetTranslation",
 		"StaticResource",
 		"SurveySettings",
@@ -426,7 +503,7 @@ func runExport(cmd *Command, args []string) {
 		"TransactionSecurityPolicy",
 		"Translations",
 		"TrialOrgSettings",
-		"UIObjectRelationConfig",
+		// "UIObjectRelationConfig",
 		"UiPlugin",
 		"UserAuthCertificate",
 		"UserCriteria",
@@ -458,9 +535,9 @@ func runExport(cmd *Command, args []string) {
 		"WorkflowTask",
 		"WorkSkillRouting",
 	}
+
 	// add support for only extracting certain objects
 	if len(includeMetadataNames) > 0 {
-		sort.Strings(includeMetadataNames)
 		metadataNames = includeMetadataNames
 	}
 
@@ -470,7 +547,7 @@ func runExport(cmd *Command, args []string) {
 		}
 	}
 
-	if len(includeMetadataNames) == 0 {
+	if exportAll {
 
 		folders, err := force.GetAllFolders()
 		if err != nil {

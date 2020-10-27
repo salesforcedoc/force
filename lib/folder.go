@@ -40,6 +40,8 @@ func (force *Force) GetMetadataInFolders(metadataType FolderType, folders Folder
 	var queryString string
 	if metadataType == "Report" {
 		queryString = "SELECT Id, OwnerId, DeveloperName, NamespacePrefix FROM Report"
+	} else if metadataType == "EmailTemplate" {
+		queryString = "SELECT Id, OwnerId, DeveloperName, NamespacePrefix FROM EmailTemplate"
 	} else {
 		queryString = "SELECT Id, DeveloperName, Folder.DeveloperName, Folder.NamespacePrefix, NamespacePrefix FROM " + string(metadataType)
 	}
@@ -52,13 +54,17 @@ func (force *Force) GetMetadataInFolders(metadataType FolderType, folders Folder
 	for _, folderName := range folders {
 		metadataItems = append(metadataItems, string(folderName))
 	}
-
+	if metadataType == "EmailTemplate" {
+		metadataItems = append(metadataItems, "unfiled$public")
+	}
 	for _, metadataItem := range queryResult.Records {
 		folderName := ""
 		if metadataType == "Report" {
 			ownerId, _ := metadataItem["OwnerId"].(string)
 			folderId := FolderId(ownerId)
 			folderName = string(folders[folderId])
+		} else if metadataType == "EmailTemplate" {
+			folderName = string("unfiled$public")
 		} else {
 			folderData, _ := metadataItem["Folder"].(map[string]interface{})
 			if folderData != nil {
