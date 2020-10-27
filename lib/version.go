@@ -1,3 +1,3 @@
 package lib
 
-var Version = "dev"
+var Version = "salesforcedoc/force-cli 10/28"
