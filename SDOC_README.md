@@ -1,10 +1,11 @@
 # salesforcedoc customizations
 
 ### 10/22
-- enhance export to include managed package metadata types with -p
-- enhance export to extract only specific metadata types with -i
+- update export to include managed package metadata types with -p
+- update export to extract only specific metadata types with -i
 - update export exclude all __ChangeEvent objects for CustomObjects
-- update export with additional metadata types for v50.0 (including  NamedCredential)
+- update export with additional metadata types for v50.0 (including NamedCredential)
+- update export to include standard object StandardValueSets
 
 ### 10/28
 - enhance export to include email templates under unfiled$public
