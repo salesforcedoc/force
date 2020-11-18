@@ -16,6 +16,9 @@ Similar to export but only generates the package.xml
 ### Build Notes
 go get . && rm -rf src metadata && force export -i NetworkBranding
 
+### build for macos-arm64 future
+#env GOOS=darwin GOARCH=arm64 go build -o force-macos-arm64 main.go
+
 ### build for macos-x64
 env GOOS=darwin GOARCH=amd64 go build -o force-macos-x64 main.go
 
