@@ -112,6 +112,7 @@ func runExport(cmd *Command, args []string) {
 			}
 		}
 		stdObjects = append(stdObjects, "Activity")
+		stdObjects = append(stdObjects, "PersonAccount")
 
 		query = append(query, ForceMetadataQueryElement{Name: []string{customObject}, Members: stdObjects})
 	}
