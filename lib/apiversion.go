@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	DefaultApiVersionNumber = "45.0"
+	DefaultApiVersionNumber = "48.0"
 	apiVersionNumber        = DefaultApiVersionNumber
 	apiVersion              = fmt.Sprintf("v%s", apiVersionNumber)
 )
