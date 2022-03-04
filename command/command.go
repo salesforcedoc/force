@@ -18,6 +18,7 @@ var Commands = []*Command{
 	cmdDescribe,
 	cmdEventLogFile,
 	cmdExport,
+	cmdExportCheck,
 	cmdFetch,
 	cmdField,
 	cmdHelp,
