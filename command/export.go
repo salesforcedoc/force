@@ -551,7 +551,7 @@ func runExport(cmd *Command, args []string) {
 		}
 	}
 
-	if exportAll {
+	if (exportAll || isIncluded("EmailTemplate"))  {
 
 		folders, err := force.GetAllFolders()
 		if err != nil {
