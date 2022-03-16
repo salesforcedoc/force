@@ -1,14 +1,21 @@
 # salesforcedoc customizations
 
 ### 03/16/22
-- updated folder.go to support email template folders
+- update folder.go to support email template folders
 - rebased with https://github.com/ForceCLI/force.git
 
 ### 03/04/22
-- add export_check.go to download each metadata type individually
+- add export_check.go to export each metadata type individually to find problematic metadata types
+- update apiversion.go to 50.0
+
+### 12/02/20
+- update apiversion.go to 48.0
+### 11/04/20
+- update export.go to include standard object PersonAccount
+
 ### 10/22/20
 - update export.go to include managed package metadata types with -p
-- update export.go to extract only specific metadata types with -i
+- update export.go to export only specific metadata types with -i
 - update export.go exclude all __ChangeEvent objects for CustomObjects
 - update export.go with additional metadata types for v50.0 (including NamedCredential)
 - update export.go to include standard object StandardValueSets

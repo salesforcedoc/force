@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VER=$(date "+%Y%m%d.%H%M%S")
+VER=$(date "+%Y%m%d.%H%M")
 VER_FILE=lib/version.go
 
 echo "building version: ${VER}"
