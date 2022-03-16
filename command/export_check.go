@@ -98,7 +98,7 @@ func runExportCheck(cmd *Command, args []string) {
 			include := true
 			if strings.Count(name, "__") > 1 {
 				if !includeManagedPackages {
-					include = false
+					include = true
 				}
 			}
 			if include && !strings.HasSuffix(name, "Tag") && !strings.HasSuffix(name, "History") &&
@@ -114,8 +114,9 @@ func runExportCheck(cmd *Command, args []string) {
 		for _, name := range stdObjects {
 			fmt.Printf("<members>%s</members>\n", name)
 		}
-
+		query = make(ForceMetadataQuery, 0)
 		query = append(query, ForceMetadataQueryElement{Name: []string{customObject}, Members: stdObjects})
+		//check(customObject, query)
 	}
 
 	standardValueSetNames := []string{
@@ -186,7 +187,9 @@ func runExportCheck(cmd *Command, args []string) {
 	}
 
 	if (!isExcluded(standardValueSet) && exportAll) || isIncluded(standardValueSet) {
+		query = make(ForceMetadataQuery, 0)
 		query = append(query, ForceMetadataQueryElement{Name: []string{standardValueSet}, Members: standardValueSetNames})
+		//check(standardValueSet, query)
 	}
 
 	metadataNames := []string{
@@ -350,8 +353,8 @@ func runExportCheck(cmd *Command, args []string) {
 		"ForecastingSettings",
 		"FormulaSettings",
 		"FunctionReference",
-		"GatewayProviderPaymentMethodType",
 		"GlobalValueSet",
+		"GatewayProviderPaymentMethodType",
 		"GlobalValueSetTranslation",
 		"GoogleAppsSettings",
 		"Group",
@@ -538,6 +541,13 @@ func runExportCheck(cmd *Command, args []string) {
 		"WorkSkillRouting",
 	}
 
+	metadataNames = []string{
+		"ContentAsset",
+		"Role",
+		"WorkflowTask",
+	}
+
+
 	// add support for only extracting certain objects
 	if len(includeMetadataNames) > 0 {
 		metadataNames = includeMetadataNames
@@ -553,7 +563,8 @@ func runExportCheck(cmd *Command, args []string) {
 	for _, name := range metadataNames {
 		query = make(ForceMetadataQuery, 0)
 		query = append(query, ForceMetadataQueryElement{Name: []string{name}, Members: []string{"*"}})
-		fmt.Printf("Checking %s...\n", name)
+		//check(name, query)
+		/*fmt.Printf("Checking %s...\n", name)
 
 		files, problems, err := force.Metadata.Retrieve(query)
 		if err != nil {
@@ -580,6 +591,7 @@ func runExportCheck(cmd *Command, args []string) {
 			}
 			fmt.Printf("Exported to %s\n", root)
 		}
+		*/
 	}
 
 	/*
@@ -607,4 +619,45 @@ func runExportCheck(cmd *Command, args []string) {
 	}
 	// fmt.Printf("Query: %s\n", query)
 */
+}
+
+func check(name string, query ForceMetadataQuery)  {
+	var err error
+	var root string
+	force, _ := ActiveForce()
+
+	if root == "" {
+		root, err = config.GetSourceDir()
+		if err != nil {
+			fmt.Printf("Error obtaining root directory\n")
+			ErrorAndExit(err.Error())
+		}
+	}
+
+	fmt.Printf("Checking %s...\n", name)
+	files, problems, err := force.Metadata.Retrieve(query)
+	if err != nil {
+		fmt.Printf("Encountered and error with retrieve: %s...\n", err.Error())
+		// ErrorAndExit(err.Error())
+	} else {
+		if files != nil {
+			fmt.Printf("Count: %d\n", len(files))
+		}
+		if showWarnings {
+			for _, problem := range problems {
+				fmt.Fprintln(os.Stderr, problem)
+			}
+		}
+		for name, data := range files {
+			file := filepath.Join(root, name)
+			dir := filepath.Dir(file)
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				ErrorAndExit(err.Error())
+			}
+			if err := ioutil.WriteFile(filepath.Join(root, name), data, 0644); err != nil {
+				ErrorAndExit(err.Error())
+			}
+		}
+		fmt.Printf("Exported to %s\n", root)
+	}
 }
