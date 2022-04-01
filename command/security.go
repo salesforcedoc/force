@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/ForceCLI/force/desktop"
@@ -240,26 +241,74 @@ var cmdSecurity = &Command{
 	Long: `
 Displays the OLS and FLS for a given SObject
 
-Examples:
+Security Options
+  -o, -object    # Object
+  -x, -exclude   # Exclude a profile
+  -i, -include   # Include a profile
 
-  force security Case
+  Examples:
+
+  force security -o Case
+
+  force security -o Case -x Admin
 `,
 	MaxExpectedArgs: -1,
 }
 
+type stringList []string
+
+func (i *stringList) String() string {
+	return fmt.Sprint(*i)
+}
+
+func (i *stringList) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
+func inList(name string, list stringList) bool {
+	index := sort.SearchStrings(list, name)
+
+	return index < len(list) && list[index] == name
+}
+
+// these names need to be unique across all cmd.Flag
+var (
+	securityShowWarnings   bool
+	securityObjects		   stringList
+	securityExcludeNames   stringList
+	securityIncludeNames   stringList
+)
+
+func init() {
+	cmdSecurity.Flag.Var(&securityObjects, "o", "object")
+	cmdSecurity.Flag.Var(&securityObjects, "object", "object")
+	cmdSecurity.Flag.Var(&securityExcludeNames, "x", "exclude profile name")
+	cmdSecurity.Flag.Var(&securityExcludeNames, "exclude", "exclude profile name")
+	cmdSecurity.Flag.Var(&securityIncludeNames, "i", "include only profile name")
+	cmdSecurity.Flag.Var(&securityIncludeNames, "include", "include only profile name")
+}
+
 func runSecurity(cmd *Command, args []string) {
+	// Get path from args if available
 	wd, _ := os.Getwd()
 	root := filepath.Join(wd, ".")
 
+	sort.Strings(securityObjects)
+	sort.Strings(securityExcludeNames)
+	sort.Strings(securityIncludeNames)
+	
 	var query ForceMetadataQuery
+	var sobjectName string
 
-	if len(args) == 1 {
+	if len(securityObjects) > 0 {
+		sobjectName = securityObjects[0]
 		query = ForceMetadataQuery{
 			{Name: []string{"Profile"}, Members: []string{"*"}},
-			{Name: []string{"CustomObject"}, Members: args},
+			{Name: []string{"CustomObject"}, Members: []string{sobjectName}},
 		}
 	} else {
-		fmt.Println("Pass an SObject name")
+		fmt.Println("specify an SObject name")
 		return
 	}
 
@@ -278,18 +327,56 @@ func runSecurity(cmd *Command, args []string) {
 	var profiles list.List
 	var theObject CustomObject
 
-	for name, data := range files {
-		if strings.HasPrefix(name, "profiles/") {
-			profileName := strings.TrimSuffix(strings.TrimPrefix(name, "profiles/"), ".profile")
-			profiles.PushBack(parseProfileXML(profileName, string(data)))
-		} else if strings.HasPrefix(name, "objects/") {
-			objectName := strings.TrimSuffix(strings.TrimPrefix(name, "objects/"), ".object")
-			if objectName == args[0] {
-				theObject = parseCustomObjectXML(objectName, string(data))
+	if (true) {
+		// new way sorted
+		var profileListKeys = make([]string, 0, len(files))
+		var profileMap = make(map[string]string)
+		for name, data := range files {
+			if strings.HasPrefix(name, "profiles/") {
+				profileName := strings.TrimSuffix(strings.TrimPrefix(name, "profiles/"), ".profile")
+				if (len(securityIncludeNames)>0 && inList(profileName, securityIncludeNames)) {
+					profileListKeys = append(profileListKeys, profileName)
+					profileMap[profileName] = string(data)
+				} else if (len(securityExcludeNames)>0 && !inList(profileName, securityExcludeNames)) { 
+					profileListKeys = append(profileListKeys, profileName)
+					profileMap[profileName] = string(data)
+				} else if (len(securityIncludeNames)==0 && len(securityExcludeNames)==0) {
+					profileListKeys = append(profileListKeys, profileName)
+					profileMap[profileName] = string(data)
+				}
+			} else if strings.HasPrefix(name, "objects/") {
+				objectName := strings.TrimSuffix(strings.TrimPrefix(name, "objects/"), ".object")
+				if objectName == sobjectName {
+					theObject = parseCustomObjectXML(objectName, string(data))
+				}
+			}
+		}		
+		// sort the profiles
+		sort.Strings(profileListKeys)
+		for _, profileName := range profileListKeys {
+			profiles.PushBack(parseProfileXML(profileName, string(profileMap[profileName])))
+		}		
+	} else {
+		// old way non-sorted
+		for name, data := range files {
+			if strings.HasPrefix(name, "profiles/") {
+				profileName := strings.TrimSuffix(strings.TrimPrefix(name, "profiles/"), ".profile")
+				if (len(securityIncludeNames)>0 && inList(profileName, securityIncludeNames)) {
+					profiles.PushBack(parseProfileXML(profileName, string(data)))
+				} else if (len(securityExcludeNames)>0 && !inList(profileName, securityExcludeNames)) { 
+					profiles.PushBack(parseProfileXML(profileName, string(data)))
+				} else if (len(securityIncludeNames)==0 && len(securityExcludeNames)==0) {
+					profiles.PushBack(parseProfileXML(profileName, string(data)))
+				}
+			} else if strings.HasPrefix(name, "objects/") {
+				objectName := strings.TrimSuffix(strings.TrimPrefix(name, "objects/"), ".object")
+				if objectName == sobjectName {
+					theObject = parseCustomObjectXML(objectName, string(data))
+				}
 			}
 		}
 	}
-
+	
 	// Step 3: group the profiles that have the exact same OLS and FLS
 	// for the desired object together
 	allProfiles := map[string]list.List{}
@@ -309,12 +396,19 @@ func runSecurity(cmd *Command, args []string) {
 			tmpList.PushBack(p)
 		}
 	}
-
+	//fmt.Printf("profileKeys: %s\n", profileKeys)
 	// Step 4: generate an HTML file that shows the various groups of profiles
 	// as well as their OLS and FLS
-	HTMLoutput := "<html><body>" +
-		"<table border=\"1\" style=\"border-collapse:collapse;\">" +
-		"<tr><td></td>"
+	HTMLoutput := "<html>" +
+	"<head>" +
+	"<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/github.min.css\" />" +
+	"<style>" +
+	"*{font-family:sans-serif}.content-table{border-collapse:collapse;margin:25px 0;font-size:.9em;min-width:400px;border-radius:5px 5px 0 0;overflow:hidden;box-shadow:0 0 20px rgba(0,0,0,.15)}.content-table thead tr{background-color:#009879;color:#fff;text-align:left;font-weight:700}.content-table td,.content-table th{padding:12px 15px}.content-table tbody tr{border-bottom:1px solid #ddd}.content-table tbody tr:nth-of-type(even){background-color:#f3f3f3}.content-table tbody tr:last-of-type{border-bottom:2px solid #009879}.content-table tbody tr.active-row{font-weight:700;color:#009879}" +
+	"</style>" +
+	"</head>" +
+	"<body style=\"text-align: center; font-family: 'Source Sans Pro', sans-serif\">" +
+	"<table class=\"content-table\" border=\"1\" style=\"border-collapse:collapse;\">" +
+	"<thead><tr><td>" + sobjectName + "</td>"
 
 	for key := profileKeys.Front(); key != nil; key = key.Next() {
 		val := allProfiles[key.Value.(string)]
@@ -328,18 +422,18 @@ func runSecurity(cmd *Command, args []string) {
 		}
 		HTMLoutput += "<td>" + strings.Replace(profileNames, " ", "&nbsp;", -1) + "</td>"
 	}
-	HTMLoutput += "</tr>"
+	HTMLoutput += "</tr></thead><tbody>"
 
-	OLSproperties := []string{"Allow Create", "Allow Delete", "Allow Edit", "Allow Read", "Modify All Records", "View All Records"}
+	OLSproperties := []string{"Allow Create", "Allow Read", "Allow Edit", "Allow Delete", "View All Records", "Modify All Records" }
 
 	for _, OLSproperty := range OLSproperties {
-		HTMLoutput += "<tr><td>[Object] " + OLSproperty + "</td>"
+		HTMLoutput += "  <tr><td>[Object] " + OLSproperty + "</td>"
 
 		for key := profileKeys.Front(); key != nil; key = key.Next() {
 			val := allProfiles[key.Value.(string)]
 			theProfile := val.Front().Value.(Profile)
 			theOLS := theProfile.objectPermissions[theObject.objectName]
-			HTMLoutput += "<td>" + theOLS.getProperty(OLSproperty) + "</td>"
+			HTMLoutput += "<td>" + strings.Title(theOLS.getProperty(OLSproperty)) + "</td>"
 		}
 		HTMLoutput += "</tr>"
 	}
@@ -351,9 +445,9 @@ func runSecurity(cmd *Command, args []string) {
 			val := allProfiles[key.Value.(string)]
 			theProfile := val.Front().Value.(Profile)
 			if theProfile.fieldPermissions[theObject.objectName+"."+fieldName].editable == "true" {
-				HTMLoutput += "<td>Yes</td>"
+				HTMLoutput += "<td>Editable</td>"
 			} else if theProfile.fieldPermissions[theObject.objectName+"."+fieldName].readable == "true" {
-				HTMLoutput += "<td>Readonly</td>"
+				HTMLoutput += "<td>Readable</td>"
 			} else {
 				HTMLoutput += "<td>-</td>"
 			}
@@ -361,12 +455,12 @@ func runSecurity(cmd *Command, args []string) {
 		HTMLoutput += "</tr>"
 	}
 
-	HTMLoutput += "</table></body></html>"
+	HTMLoutput += "</tbody></table></body></html>"
 
 	// Last step: write the file on disk and display it inside a Web browser
-	if err := ioutil.WriteFile(filepath.Join(root, "security.html"), []byte(HTMLoutput), 0644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join(root, sobjectName + ".html"), []byte(HTMLoutput), 0644); err != nil {
 		ErrorAndExit(err.Error())
 	}
 
-	desktop.Open(filepath.Join(root, "security.html"))
+	desktop.Open(filepath.Join(root, sobjectName + ".html"))
 }
