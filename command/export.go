@@ -25,6 +25,7 @@ Export Options
   -x, -exclude   # Exclude given metadata type
   -i, -include   # Include given metadata type
   -p, -package   # Include managed package metadata
+  -n, -newline   # Add newline for output
 
 Examples:
 
@@ -53,6 +54,7 @@ var (
 	includeManagedPackages bool
 	excludeMetadataNames   metadataList
 	includeMetadataNames   metadataList
+	addNewline		   	   bool
 )
 
 func init() {
@@ -64,6 +66,8 @@ func init() {
 	cmdExport.Flag.Var(&includeMetadataNames, "include", "include only metadata type")
 	cmdExport.Flag.BoolVar(&includeManagedPackages, "p", false, "include managed packages")
 	cmdExport.Flag.BoolVar(&includeManagedPackages, "package", false, "include managed packages")
+	cmdExport.Flag.BoolVar(&addNewline, "n", false, "add newline")
+	cmdExport.Flag.BoolVar(&addNewline, "newline", false, "add newline")
 }
 
 func runExport(cmd *Command, args []string) {
@@ -592,13 +596,17 @@ func runExport(cmd *Command, args []string) {
 			fmt.Fprintln(os.Stderr, problem)
 		}
 	}
+	newline := []byte("")
+	if addNewline {
+		newline = []byte("\n")		
+	}
 	for name, data := range files {
 		file := filepath.Join(root, name)
 		dir := filepath.Dir(file)
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			ErrorAndExit(err.Error())
 		}
-		if err := ioutil.WriteFile(filepath.Join(root, name), data, 0644); err != nil {
+		if err := ioutil.WriteFile(filepath.Join(root, name), append(data, newline...), 0644); err != nil {
 			ErrorAndExit(err.Error())
 		}
 	}
