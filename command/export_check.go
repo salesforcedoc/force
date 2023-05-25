@@ -116,7 +116,7 @@ func runExportCheck(cmd *Command, args []string) {
 		}
 		query = make(ForceMetadataQuery, 0)
 		query = append(query, ForceMetadataQueryElement{Name: []string{customObject}, Members: stdObjects})
-		//check(customObject, query)
+		check(customObject, query)
 	}
 
 	standardValueSetNames := []string{
@@ -125,63 +125,195 @@ func runExportCheck(cmd *Command, args []string) {
 		"AccountOwnership",
 		"AccountRating",
 		"AccountType",
+		"ACInitSumEmployeeType4",
+		"ACInitSumInitiativeType4",
+		"ACISumRecipientCategory4",
+		"ACorruptionInitSumCountry4",
+		"ACorruptionInitSumRegion4",
+		"AssetActionCategory",
+		"AssetRelationshipType",
 		"AssetStatus",
+		"AssociatedLocationType",
 		"CampaignMemberStatus",
 		"CampaignStatus",
 		"CampaignType",
-		"CareItemStatus2",
+		"CardType",
+		"CareItemStatus1",
 		"CaseContactRole",
 		"CaseOrigin",
 		"CasePriority",
 		"CaseReason",
 		"CaseStatus",
 		"CaseType",
+		"CCPAdditionalBenefits4",
+		"CCProjectMitigationType4",
+		"CCPStandardsAgencyName4",
+		"CCreditProjectProjectType4",
+		"ChangeRequestRelatedItemImpactLevel",
+		"ChangeRequestBusinessReason",
+		"ChangeRequestCategory",
+		"ChangeRequestImpact",
+		"ChangeRequestPriority",
+		"ChangeRequestRiskLevel",
+		"ChangeRequestStatus",
+		"CompanyRelationshipType4",
+		"ContactPointAddressType",
+		"ContactPointUsageType",
+		"ContactRequestReason",
+		"ContactRequestStatus",
 		"ContactRole",
 		"ContractContactRole",
 		"ContractStatus",
+		"ConsequenceOfFailure",
+		"DigitalAssetStatus",
+		"DEInclSumDiversityType4",
+		"DEInclSumEmployeeType4",
+		"DEInclSumEmploymentType4",
+		"DEInclSumGender4",
+		"DEISumDiversityCategory4",
+		"DivrsEquityInclSumLocation4",
+		"DivrsEquityInclSumRace4",
 		"EntitlementType",
+		"EBSEmployeeBenefitType4",
+		"EBSPercentageCalcType4",
+		"EBSummaryBenefitUsage4",
+		"EBSummaryEmploymentType4",
+		"EDemographicSumAgeGroup4",
+		"EDemographicSumGender4",
+		"EDemographicSumRegion4",
+		"EDemographicSumReportType4",
+		"EDemographicSumWorkType4",
+		"EDevelopmentSumGender4",
+		"EDSumEmployeeType4",
+		"EDSumEmploymentType4",
+		"EDSumProgramCategory4",
+		"EPSumMarket4",
+		"EPSumPerformanceCategory4",
+		"EPSumPerformanceType4",
+		"EPSumRegion4",
+		"ERCompanyBusinessRegion4",
+		"ERCompanySector4",
+		"EReductionTargetTargetType4",
+		"ERTargetOtherTargetKpi4",
+		"ERTTargetSettingMethod4",
 		"EventSubject",
 		"EventType",
+		"FinanceEventAction",
+		"FinanceEventType",
 		"FiscalYearPeriodName",
 		"FiscalYearPeriodPrefix",
 		"FiscalYearQuarterName",
 		"FiscalYearQuarterPrefix",
-		"IdeaCategory1",
+		"ForecastingItemCategory2",
+		"FreightHaulingMode4",
+		"FtprntAuditApprovalStatus4",
+		"FulfillmentStatus",
+		"FulfillmentType",
+		"GovtFinancialAsstSumType4",
+		"IdeaCategory3",
 		"IdeaMultiCategory",
 		"IdeaStatus",
 		"IdeaThemeStatus",
+		"IncidentCategory",
+		"IncidentImpact",
+		"IncidentPriority",
+		"IncidentRelatedItemImpactLevel",
+		"IncidentRelatedItemImpactType",
+		"IncidentReportedMethod",
+		"IncidentStatus",
+		"IncidentSubCategory",
+		"IncidentType",
+		"IncidentUrgency",
 		"Industry",
 		"LeadSource",
 		"LeadStatus",
+		"LocationType",
+		"MilitaryService",
+		"OIncidentSummaryHazardType4",
+		"OISCorrectiveActionType4",
+		"OISummaryIncidentSubtype4",
+		"OISummaryIncidentType4",
+		"OISummaryPenaltyType4",
 		"OpportunityCompetitor",
 		"OpportunityStage",
 		"OpportunityType",
+		"OrderItemSummaryChgRsn",
 		"OrderStatus",
+		"OrderSummaryRoutingSchdRsn",
+		"OrderSummaryStatus",
 		"OrderType",
 		"PartnerRole",
+		"PEFEFctrDataSourceType4",
+		"ProblemCategory",
+		"ProblemImpact",
+		"ProblemPriority",
+		"ProblemRelatedItemImpactLevel",
+		"ProblemRelatedItemImpactType",
+		"ProblemStatus",
+		"ProblemSubCategory",
+		"ProblemUrgency",
+		"ProcessExceptionCategory",
+		"ProcessExceptionPriority",
+		"ProcessExceptionSeverity",
+		"ProcessExceptionStatus",
 		"Product2Family",
-		"QuestionOrigin1",
+		"ProdRequestLineItemStatus",
+		"ProductRequestStatus",
+		"QuantityUnitOfMeasure",
+		"QuestionOrigin3",
 		"QuickTextCategory",
 		"QuickTextChannel",
 		"QuoteStatus",
 		"RoleInTerritory2",
 		"ResourceAbsenceType",
+		"ReturnOrderLineItemProcessPlan",
+		"ReturnOrderLineItemReasonForRejection",
+		"ReturnOrderLineItemReasonForReturn",
+		"ReturnOrderLineItemRepaymentMethod",
+		"ReturnOrderShipmentType",
+		"ReturnOrderStatus",
 		"SalesTeamRole",
 		"Salutation",
+		"ScorecardMetricCategory",
+		"ScienceBasedTargetStatus4",
+		"SContributionSumCategory4",
+		"Scope3CrbnFtprntStage4",
 		"ServiceAppointmentStatus",
 		"ServiceContractApprovalStatus",
 		"ServTerrMemRoleType",
+		"ShiftStatus",
+		"SocialContributionSumType4",
 		"SocialPostClassification",
 		"SocialPostEngagementLevel",
 		"SocialPostReviewedStatus",
 		"SolutionStatus",
+		"SourceBusinessRegion4",
+		"StatusReason",
+		"StnryAssetCrbnFtprntStage4",
+		"StnryAstCrbnFtAllocStatus4",
+		"StnryAstCrbnFtDataGapSts4",
+		"StnryAstEvSrcStnryAstTyp4",
+		"StnryAssetWaterFtprntStage4",
+		"SupplierClassification4",
+		"SupplierEmssnRdctnCmtTypev",
+		"SupplierReportingScope4",
+		"SupplierTier4",
+		"SustainabilityScorecardStatus4",
 		"TaskPriority",
 		"TaskStatus",
 		"TaskSubject",
 		"TaskType",
+		"UnitOfMeasure",
+		"VehicleAstCrbnFtprntStage4",
+		"VehicleType4",
+		"WasteFootprintStage4",
+		"WasteDisposalType4",
+		"WasteType4",
+		"WorkOrderLineItemPriority",
 		"WorkOrderLineItemStatus",
 		"WorkOrderPriority",
 		"WorkOrderStatus",
+		"WorkStepStatus",
 		"WorkTypeDefApptType",
 		"WorkTypeGroupAddInfo",
 	}
@@ -189,7 +321,7 @@ func runExportCheck(cmd *Command, args []string) {
 	if (!isExcluded(standardValueSet) && exportAll) || isIncluded(standardValueSet) {
 		query = make(ForceMetadataQuery, 0)
 		query = append(query, ForceMetadataQueryElement{Name: []string{standardValueSet}, Members: standardValueSetNames})
-		//check(standardValueSet, query)
+		check(standardValueSet, query)
 	}
 
 	metadataNames := []string{
@@ -541,13 +673,6 @@ func runExportCheck(cmd *Command, args []string) {
 		"WorkSkillRouting",
 	}
 
-	metadataNames = []string{
-		"ContentAsset",
-		"Role",
-		"WorkflowTask",
-	}
-
-
 	// add support for only extracting certain objects
 	if len(includeMetadataNames) > 0 {
 		metadataNames = includeMetadataNames
@@ -559,11 +684,11 @@ func runExportCheck(cmd *Command, args []string) {
 			ErrorAndExit(err.Error())
 		}
 	}
-	
+
 	for _, name := range metadataNames {
 		query = make(ForceMetadataQuery, 0)
 		query = append(query, ForceMetadataQueryElement{Name: []string{name}, Members: []string{"*"}})
-		//check(name, query)
+		check(name, query)
 		/*fmt.Printf("Checking %s...\n", name)
 
 		files, problems, err := force.Metadata.Retrieve(query)
@@ -595,33 +720,33 @@ func runExportCheck(cmd *Command, args []string) {
 	}
 
 	/*
-	if exportAll {
+		if exportAll {
 
-		folders, err := force.GetAllFolders()
-		if err != nil {
-			err = fmt.Errorf("Could not get folders: %s", err.Error())
-			ErrorAndExit(err.Error())
-		}
-		for foldersType, foldersName := range folders {
-			if foldersType == "Email" {
-				foldersType = "EmailTemplate"
-			}
-			members, err := force.GetMetadataInFolders(foldersType, foldersName)
+			folders, err := force.GetAllFolders()
 			if err != nil {
-				err = fmt.Errorf("Could not get metadata in folders: %s", err.Error())
+				err = fmt.Errorf("Could not get folders: %s", err.Error())
 				ErrorAndExit(err.Error())
 			}
+			for foldersType, foldersName := range folders {
+				if foldersType == "Email" {
+					foldersType = "EmailTemplate"
+				}
+				members, err := force.GetMetadataInFolders(foldersType, foldersName)
+				if err != nil {
+					err = fmt.Errorf("Could not get metadata in folders: %s", err.Error())
+					ErrorAndExit(err.Error())
+				}
 
-			if !isExcluded(string(foldersType)) {
-				query = append(query, ForceMetadataQueryElement{Name: []string{string(foldersType)}, Members: members})
+				if !isExcluded(string(foldersType)) {
+					query = append(query, ForceMetadataQueryElement{Name: []string{string(foldersType)}, Members: members})
+				}
 			}
 		}
-	}
-	// fmt.Printf("Query: %s\n", query)
-*/
+		// fmt.Printf("Query: %s\n", query)
+	*/
 }
 
-func check(name string, query ForceMetadataQuery)  {
+func check(name string, query ForceMetadataQuery) {
 	var err error
 	var root string
 	force, _ := ActiveForce()
