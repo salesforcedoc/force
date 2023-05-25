@@ -24,6 +24,7 @@ type XLS interface {
 	addToProfile(p Profile)
 }
 
+//--
 type OLS struct {
 	objectName       string
 	allowCreate      string
@@ -74,13 +75,12 @@ func (o *OLS) getProperty(name string) string {
 func (o *OLS) addToProfile(p Profile) {
 	p.objectPermissions[o.objectName] = *o
 }
-
+//--
 type FLS struct {
 	field    string
 	editable string
 	readable string
 }
-
 func (f *FLS) addProperty(name string, value string) {
 	switch name {
 	case "field":
@@ -95,11 +95,28 @@ func (f *FLS) addProperty(name string, value string) {
 func (f *FLS) addToProfile(p Profile) {
 	p.fieldPermissions[f.field] = *f
 }
-
+//--
+type UPERM struct {
+	name    string
+	enabled string
+}
+func (f *UPERM) addProperty(name string, value string) {
+	switch name {
+	case "name":
+		f.name = value
+	case "enabled":
+		f.enabled = value
+	}
+}
+func (f *UPERM) addToProfile(p Profile) {
+	p.userPermissions[f.name] = *f
+}
+//-
 type Profile struct {
 	name              string
 	fieldPermissions  map[string]FLS
 	objectPermissions map[string]OLS
+	userPermissions   map[string]UPERM
 }
 
 func parseProfileXML(profileName string, text string) Profile {
@@ -107,6 +124,7 @@ func parseProfileXML(profileName string, text string) Profile {
 	p.name = profileName
 	p.fieldPermissions = map[string]FLS{}
 	p.objectPermissions = map[string]OLS{}
+	p.userPermissions = map[string]UPERM{}
 	var currentElement XLS
 
 	r := strings.NewReader(text)
@@ -132,6 +150,8 @@ func parseProfileXML(profileName string, text string) Profile {
 					currentElement = new(OLS)
 				} else if eltType == "fieldPermissions" {
 					currentElement = new(FLS)
+				} else if eltType == "userPermissions" {
+					currentElement = new(UPERM)
 				} else {
 					currentElement = nil
 				}
@@ -164,9 +184,9 @@ func parseProfileXML(profileName string, text string) Profile {
 //////////////////////////////////////////////////////////////////////
 
 type CustomObject struct {
-	objectName string
-	fieldNames []string
-	nbFields   int
+	objectName	string
+	fieldNames	[]string
+	nbFields	int
 }
 
 func (co *CustomObject) addField(name string) {
@@ -232,6 +252,84 @@ func parseCustomObjectXML(objectName string, text string) CustomObject {
 	return obj
 }
 
+//////////////////////////////////////////////////////////////////////
+// Read information about an Profile and returns a ProfileObject struct
+//////////////////////////////////////////////////////////////////////
+
+type ProfileObject struct {
+	profileName	string
+	permNames	[]string
+	nbPerms		int
+}
+
+func stringArrayContains(a []string, x string) bool {
+	for _, n := range a {
+			if x == n {
+					return true
+			}
+	}
+	return false
+}
+func (obj *ProfileObject) addPerm(name string) {
+	if (stringArrayContains(obj.permNames, name)==false) {
+		//fmt.Printf("addPerm: %d %s\n", obj.nbPerms, name)
+		obj.permNames[obj.nbPerms] = name
+		obj.nbPerms++
+		permNames.Set(name);
+		//sort.Strings(obj.permNames)
+	}	
+}
+func (obj *ProfileObject) getFootprint(p Profile) string {
+	key := "UPERM:"
+	for idx := 0; idx < obj.nbPerms; idx++ {
+		f := obj.permNames[idx]
+		key += f + ":" + p.userPermissions[f].enabled + ","
+	}
+	return key
+}
+func parseProfileObjectXML(profileName string, text string, obj ProfileObject) ProfileObject {
+	//obj := ProfileObject{profileName: profileName, nbPerms: 0, permNames: make([]string, 900, 900)}
+	r := strings.NewReader(text)
+	parser := xml.NewDecoder(r)
+	depth := 0
+	var firstLevel, secondLevel string
+
+	for {
+
+		token, err := parser.Token()
+		if err != nil {
+			break
+		}
+		switch t := token.(type) {
+		case xml.StartElement:
+			elmt := xml.StartElement(t)
+			name := elmt.Name.Local
+			if depth == 1 {
+				firstLevel = name
+			} else if depth == 2 {
+				secondLevel = name
+			}
+			depth++
+		case xml.EndElement:
+			if depth == 3 {
+				secondLevel = ""
+			} else if depth == 2 {
+				firstLevel = ""
+			}
+			depth--
+		case xml.CharData:
+			bytes := xml.CharData(t)
+			if depth == 3 && firstLevel == "userPermissions" && secondLevel == "name" {
+				obj.addPerm(string(bytes))
+			}
+		default:
+		}
+	}
+
+	//fmt.Println(obj)
+	return obj
+}
+
 /////////////////////////////////////////////////////////
 
 var cmdSecurity = &Command{
@@ -278,6 +376,7 @@ var (
 	securityObjects		   stringList
 	securityExcludeNames   stringList
 	securityIncludeNames   stringList
+	permNames					 stringList
 )
 
 func init() {
