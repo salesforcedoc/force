@@ -1,6 +1,6 @@
 # salesforcedoc customizations
 
-### 05/25/23
+### 06/27/23
 - added template.html
 - added cmdUserPermissions (not tested)
 - update standardValueSets
@@ -11,6 +11,7 @@
 - update security.go to support inclusion/exclusion of profiles
 - update security.go to allow for sorting of profile names in output
 - update security.go to output file as <objectname>.html
+- rebased with https://github.com/ForceCLI/force.git
 
 ### 03/16/22
 - update folder.go to support email template folders
