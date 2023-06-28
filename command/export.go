@@ -54,7 +54,7 @@ var (
 	includeManagedPackages bool
 	excludeMetadataNames   metadataList
 	includeMetadataNames   metadataList
-	addNewline		   	   bool
+	addNewline             bool
 )
 
 func init() {
@@ -317,7 +317,7 @@ func runExport(cmd *Command, args []string) {
 		"WorkOrderStatus",
 		"WorkStepStatus",
 		"WorkTypeDefApptType",
-		"WorkTypeGroupAddInfo"
+		"WorkTypeGroupAddInfo",
 	}
 
 	if (!isExcluded(standardValueSet) && exportAll) || isIncluded(standardValueSet) {
@@ -422,11 +422,14 @@ func runExport(cmd *Command, args []string) {
 		"CustomLabels",
 		"CustomMetadata",
 		"CustomNotificationType",
+		//"CustomObject",
 		"CustomObjectTranslation",
 		"CustomPageWebLink",
 		"CustomPermission",
 		"CustomSite",
 		"CustomTab",
+		//"CustomValue",
+		//"Dashboard",
 		"DashboardFolder",
 		"DataCategoryGroup",
 		"DataDotComSettings",
@@ -437,6 +440,7 @@ func runExport(cmd *Command, args []string) {
 		"DeploymentSettings",
 		"DevHubSettings",
 		"DiscoverySettings",
+		//"Document",
 		"DocumentChecklistSettings",
 		"DocumentFolder",
 		"DocumentType",
@@ -455,6 +459,7 @@ func runExport(cmd *Command, args []string) {
 		"EmbeddedServiceConfig",
 		"EmbeddedServiceFlowConfig",
 		"EmbeddedServiceLiveAgent",
+		//"EmployeeUserSettings",
 		"EnhancedNotesSettings",
 		"EntitlementProcess",
 		"EntitlementSettings",
@@ -474,7 +479,6 @@ func runExport(cmd *Command, args []string) {
 		"FieldServiceMobileExtension",
 		"FieldServiceSettings",
 		"FieldSet",
-		"FieldSrcTrgtRelationship",
 		"FilesConnectSettings",
 		"FileUploadAndDownloadSecuritySettings",
 		"FlexiPage",
@@ -548,7 +552,6 @@ func runExport(cmd *Command, args []string) {
 		"NotificationTypeConfig",
 		"OauthCustomScope",
 		"ObjectLinkingSettings",
-		"ObjectSourceTargetMap",
 		"OmniChannelSettings",
 		"OpportunityInsightsSettings",
 		"OpportunityScoreSettings",
@@ -567,11 +570,10 @@ func runExport(cmd *Command, args []string) {
 		"PermissionSet",
 		"PermissionSetGroup",
 		"PicklistSettings",
+		//"PicklistValue",
 		"PlatformCachePartition",
 		"PlatformEventChannel",
 		"PlatformEventChannelMember",
-		"PlatformEventSubscriberConfig",
-		"Portal",
 		"PortalsSettings",
 		"PostTemplate",
 		"PredictionBuilderSettings",
@@ -593,9 +595,9 @@ func runExport(cmd *Command, args []string) {
 		"RecordActionDeployment",
 		"RecordPageSettings",
 		"RecordType",
-		"RestrictionRule",
 		"RedirectWhitelistUrl",
 		"RemoteSiteSetting",
+		//"Report",
 		"ReportFolder",
 		"ReportType",
 		"RestrictionRule",
@@ -626,7 +628,7 @@ func runExport(cmd *Command, args []string) {
 		"SocialProfileSettings",
 		"SourceTrackingSettings",
 		"StandardValue",
-		// "StandardValueSet",
+		//"StandardValueSet",
 		"StandardValueSetTranslation",
 		"StaticResource",
 		"SurveySettings",
@@ -639,11 +641,12 @@ func runExport(cmd *Command, args []string) {
 		"Territory2Settings",
 		"Territory2Type",
 		"TimeSheetTemplate",
+		//"TopicsForObjects",
 		"TrailheadSettings",
 		"TransactionSecurityPolicy",
 		"Translations",
 		"TrialOrgSettings",
-		// "UIObjectRelationConfig",
+		//"UIObjectRelationConfig",
 		"UiPlugin",
 		"UserAuthCertificate",
 		"UserCriteria",
@@ -674,6 +677,7 @@ func runExport(cmd *Command, args []string) {
 		"WorkflowSend",
 		"WorkflowTask",
 		"WorkSkillRouting",
+		"Settings",
 	}
 
 	// add support for only extracting certain objects
@@ -687,7 +691,7 @@ func runExport(cmd *Command, args []string) {
 		}
 	}
 
-	if (exportAll || isIncluded("EmailTemplate"))  {
+	if exportAll || isIncluded("EmailTemplate") {
 
 		folders, err := force.GetAllFolders()
 		if err != nil {
@@ -730,7 +734,7 @@ func runExport(cmd *Command, args []string) {
 	}
 	newline := []byte("")
 	if addNewline {
-		newline = []byte("\n")		
+		newline = []byte("\n")
 	}
 	for name, data := range files {
 		file := filepath.Join(root, name)
