@@ -15,7 +15,11 @@ env GOOS=windows GOARCH=amd64 go build -o force-windows-x64.exe main.go
 ### build for linux-x64
 env GOOS=linux GOARCH=amd64 go build -o force-linux-x64 main.go
 ### install to macos bin path
-#cp -pR force-macos-x64 /usr/local/Cellar/go/1.13/bin/force
-cp -pR force-macos-x64 /opt/homebrew/Cellar/go/1.22.0/bin/force
+if [ -f /usr/local/Cellar/go/1.13/bin/force ]; then
+    cp -pR force-macos-x64 /usr/local/Cellar/go/1.13/bin/force
+fi
+if [ -f /opt/homebrew/Cellar/go/1.22.0/bin/force ]; then
+    cp -pR force-macos-x64 /opt/homebrew/Cellar/go/1.22.0/bin/force
+fi
 ###
 force version

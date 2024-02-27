@@ -1,5 +1,9 @@
 # salesforcedoc customizations
 
+### 02/27/24
+- update metadata types
+- update standardValueSets
+
 ### 06/27/23
 - added template.html
 - added cmdUserPermissions (not tested)
