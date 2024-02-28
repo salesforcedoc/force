@@ -3,6 +3,7 @@
 ### 02/27/24
 - update metadata types
 - update standardValueSets
+- remove IdentityVerificationProcDef metadata type
 
 ### 06/27/23
 - added template.html

@@ -978,7 +978,7 @@ func runExport(cmd *Command, args []string) {
 		"Icon",
 		"IdeasSettings",
 		"IdentityProviderSettings",
-		"IdentityVerificationProcDef",
+		//"IdentityVerificationProcDef",
 		"IframeWhiteListUrlSettings",
 		"InboundCertificate",
 		"InboundNetworkConnection",
