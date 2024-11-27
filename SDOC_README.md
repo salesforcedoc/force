@@ -1,5 +1,9 @@
 # salesforcedoc customizations
 
+### 09/26/24
+- update metadata types (remove CustomIndex, added Settings))
+- add debug mode
+
 ### 02/27/24
 - update metadata types
 - update standardValueSets

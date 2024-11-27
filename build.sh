@@ -16,10 +16,17 @@ env GOOS=windows GOARCH=amd64 go build -o force-windows-x64.exe main.go
 env GOOS=linux GOARCH=amd64 go build -o force-linux-x64 main.go
 ### install to macos bin path
 if [ -f /usr/local/Cellar/go/1.13/bin/force ]; then
+    echo updating '/usr/local/Cellar/go/1.13/bin/force'
     cp -pR force-macos-x64 /usr/local/Cellar/go/1.13/bin/force
 fi
 if [ -f /opt/homebrew/Cellar/go/1.22.0/bin/force ]; then
+    echo updating '/opt/homebrew/Cellar/go/1.22.0/bin/force'
     cp -pR force-macos-x64 /opt/homebrew/Cellar/go/1.22.0/bin/force
 fi
+if [ -f ~/bin/force ]; then
+    echo updating '~/bin/force'
+    cp -pR force-macos-x64 ~/bin/force
+fi
 ###
+which force
 force version

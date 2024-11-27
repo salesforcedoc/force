@@ -55,6 +55,7 @@ var (
 	excludeMetadataNames   metadataList
 	includeMetadataNames   metadataList
 	addNewline             bool
+	showDebug              bool
 )
 
 func init() {
@@ -68,6 +69,8 @@ func init() {
 	cmdExport.Flag.BoolVar(&includeManagedPackages, "package", false, "include managed packages")
 	cmdExport.Flag.BoolVar(&addNewline, "n", false, "add newline")
 	cmdExport.Flag.BoolVar(&addNewline, "newline", false, "add newline")
+	cmdExport.Flag.BoolVar(&showDebug, "d", false, "show debug")
+	cmdExport.Flag.BoolVar(&showDebug, "debug", false, "show debug")
 }
 
 func runExport(cmd *Command, args []string) {
@@ -109,8 +112,11 @@ func runExport(cmd *Command, args []string) {
 					include = false
 				}
 			}
-			if include && !strings.HasSuffix(name, "Tag") && !strings.HasSuffix(name, "History") &&
-				!strings.HasSuffix(name, "Share") && !strings.HasSuffix(name, "ChangeEvent") &&
+			if include &&
+				!strings.HasSuffix(name, "Tag") &&
+				!strings.HasSuffix(name, "History") &&
+				!strings.HasSuffix(name, "Share") &&
+				!strings.HasSuffix(name, "ChangeEvent") &&
 				!strings.HasSuffix(name, "Feed") {
 				stdObjects = append(stdObjects, name)
 			}
@@ -121,6 +127,7 @@ func runExport(cmd *Command, args []string) {
 		query = append(query, ForceMetadataQueryElement{Name: []string{customObject}, Members: stdObjects})
 	}
 
+	// https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/standardvalueset_names.htm
 	standardValueSetNames := []string{
 		"AAccreditationRating",
 		"AccountContactMultiRoles",
@@ -816,7 +823,7 @@ func runExport(cmd *Command, args []string) {
 		"CustomFeedFilter",
 		"CustomField",
 		"CustomHelpMenuSection",
-		"CustomIndex",
+		//"CustomIndex",
 		"CustomizablePropensityScoringSettings",
 		"CustomLabels",
 		"CustomMetadata",
@@ -1182,6 +1189,7 @@ func runExport(cmd *Command, args []string) {
 		"ServicePresenceStatus",
 		"ServiceProcess",
 		"ServiceSetupAssistantSettings",
+		"Settings",
 		"SharingCriteriaRule",
 		"SharingGuestRule",
 		"SharingOwnerRule",
@@ -1303,7 +1311,9 @@ func runExport(cmd *Command, args []string) {
 			}
 		}
 	}
-	// fmt.Printf("Query: %s\n", query)
+	if showDebug {
+		fmt.Printf("Query: %s\n", query)
+	}
 
 	if root == "" {
 		root, err = config.GetSourceDir()
